@@ -21,4 +21,7 @@ pub(crate) struct Cli {
     /// Nix command to run
     #[arg(long, short, default_value = "develop")]
     pub command: String,
+    /// Mode for the temporary file containing secrets json
+    #[arg(long, short, default_value = "0400")]
+    pub mode: String,
 }

@@ -14,7 +14,9 @@ Managing multiple Kubernetes environments (like staging or development) often in
 nix shell github:nikolaiser/kent
 ```
 
-2. Modify the flake that you want to use kubernetes secrets in. By default `kent` will pass secret values the input called `kent`, however it can be overridden (see Reference)
+2. Modify the flake that you want to use kubernetes secrets in. `kent` uses the following mechanism for passing the secrets. First it creates a temporary file and writes the secrets to it as a json. To avoid leaking the secrets into nix store, another temporary file is created and the first file's path is written into it. This file is then passed to the flake using `--override-input`
+
+By default `kent` will pass this file to the input called `kent`, however it can be overridden (see Reference)
 
 ```nix
 {
@@ -30,9 +32,10 @@ nix shell github:nikolaiser/kent
   outputs = {kent, ...}: 
     let
     ...
-      secrets = lib.trivial.importJson kent.outPath;
+      secretsPath = lib.readFile kent.outPath;
 
-      # now you can access all arguments by `secrets.<secretName>.<data|stringData>.<name>`
+      # `secretsPath` points to the file with extracted secrets in form of json object. For example
+      # `{"secretName"={"data"={"name1" == "..."},"stringData"={...}},"anotherSecret"= {...}}`
     ...
     in 
     {
@@ -60,6 +63,7 @@ Options:
   -s, --selector <SELECTOR>    Filter which secret are propagated. For example '-s metadata.name=foo -s metadata.name=bar,metadata.labels.bazz=true'. Multiple expressions are combined as following '-s a -s b,c' <==> 'a || (b && c)' [default: ]
   -n, --namespace <NAMESPACE>  Namespace to extract secret values from. If not provided the currently active one will be used
   -c, --command <COMMAND>      Nix command to run [default: develop]
+  -m, --mode <MODE>            Mode for the temporary file containing secrets json [default: 0400]
   -h, --help                   Print help
   -V, --version                Print version
 
