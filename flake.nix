@@ -27,7 +27,12 @@
         "x86_64-darwin"
       ];
       perSystem =
-        { pkgs, system, ... }:
+        {
+          pkgs,
+          system,
+          lib,
+          ...
+        }:
         let
           cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
 
@@ -43,6 +48,9 @@
                 src = ./.;
                 cargoLock.lockFile = ./Cargo.lock;
                 nativeBuildInputs = [ rustPackage ];
+                buildInputs = lib.optional pkgs.stdenv.isDarwin [
+                  pkgs.darwin.apple_sdk.frameworks.Security
+                ];
               };
         in
         {
