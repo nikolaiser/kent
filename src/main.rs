@@ -32,8 +32,8 @@ async fn main() -> anyhow::Result<()> {
     let pointer_path = pointer.path().to_str().unwrap();
 
     let command = format!(
-        "nix {} {} --override-input {} file+file://{} --refresh",
-        cli_args.command, cli_args.flake, cli_args.input, pointer_path
+        "nix {} {} --override-input {} file+file://{} --refresh {}",
+        cli_args.command, cli_args.flake, cli_args.input, pointer_path, cli_args.arguments
     );
 
     let mut process = Command::new("/bin/sh")

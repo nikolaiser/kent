@@ -24,4 +24,6 @@ pub(crate) struct Cli {
     /// Mode for the temporary file containing secrets json
     #[arg(long, short, default_value = "0400")]
     pub mode: String,
+    #[arg(long, short, default_value = "-c \"$SHELL\"")]
+    pub arguments: String,
 }
